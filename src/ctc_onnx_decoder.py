@@ -126,8 +126,14 @@ def prefix_beam_decode(emission_log_prob, blank=0, **kwargs):
 
 
 def ctc_decode(log_probs, label2char=None, blank=0, method='beam_search', beam_size=10):
-    emission_log_probs = np.transpose(log_probs.cpu().numpy(), (1, 0, 2))
-    # size of emission_log_probs: (batch, length, class)
+    # Check if log_probs is a PyTorch tensor and convert it to a numpy array
+    if isinstance(log_probs, torch.Tensor):
+        emission_log_probs = log_probs.cpu().numpy()
+    else:
+        emission_log_probs = log_probs  # Already a numpy array
+
+    # Transpose the emission log probabilities
+    emission_log_probs = np.transpose(emission_log_probs, (1, 0, 2))
 
     decoders = {
         'greedy': greedy_decode,
@@ -143,3 +149,5 @@ def ctc_decode(log_probs, label2char=None, blank=0, method='beam_search', beam_s
             decoded = [label2char[l] for l in decoded]
         decoded_list.append(decoded)
     return decoded_list
+
+  

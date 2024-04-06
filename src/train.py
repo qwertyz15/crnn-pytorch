@@ -104,10 +104,11 @@ def main():
                 print('valid_evaluation: loss={loss}, acc={acc}'.format(**evaluation))
 
                 if i % save_interval == 0:
-                    prefix = 'crnn'
+                    prefix = 'crnn_blur_real_'
                     loss = evaluation['loss']
+                    acc = evaluation['acc']
                     save_model_path = os.path.join(config['checkpoints_dir'],
-                                                   f'{prefix}_{i:06}_loss{loss}.pt')
+                                                   f'{prefix}_{i:06}_loss{loss}_acc{acc}.pt')
                     torch.save(crnn.state_dict(), save_model_path)
                     print('save model at ', save_model_path)
 

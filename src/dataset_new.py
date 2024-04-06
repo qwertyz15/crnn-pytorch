@@ -47,30 +47,29 @@ class Synth90kDataset(Dataset):
         self.img_width = img_width
 
     def _load_from_raw_files(self, root_dir, mode):
-        mapping = {}
-        with open(os.path.join(root_dir, 'lexicon.txt'), 'r') as fr:
-            for i, line in enumerate(fr.readlines()):
-                mapping[i] = line.strip()
-
-        paths_file = None
-        if mode == 'train':
-            paths_file = 'annotation_train.txt'
-        elif mode == 'dev':
-            paths_file = 'annotation_val.txt'
-        elif mode == 'test':
-            paths_file = 'annotation_test.txt'
-
         paths = []
         texts = []
-        with open(os.path.join(root_dir, paths_file), 'r') as fr:
-            for line in fr.readlines():
-                path, index_str = line.strip().split(' ')
-                path = os.path.join(root_dir, path)
-                index = int(index_str)
-                text = mapping[index]
-                paths.append(path)
-                texts.append(text)
+
+        # Define the paths for images and labels
+        images_dir = os.path.join(root_dir, 'images')
+        labels_dir = os.path.join(root_dir, 'labels')
+
+        # Get the list of image files (supporting various formats: PNG, JPG, JPEG)
+        image_files = sorted(glob.glob(os.path.join(images_dir, '*.[PpJj][NnGg][PpEe]')))
+        
+        for image_path in image_files:
+            # Get the corresponding label file path
+            label_path = os.path.join(labels_dir, os.path.splitext(os.path.basename(image_path))[0] + '.txt')
+
+            # Read the label from the label file
+            with open(label_path, 'r') as label_file:
+                label = label_file.read().strip()
+
+            paths.append(image_path)
+            texts.append(label)
+
         return paths, texts
+
 
     def __len__(self):
         return len(self.paths)
